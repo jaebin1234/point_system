@@ -36,3 +36,5 @@ build/
 
 jasypt/*
 
+/src/test/java/com/common/point/test/TestJdbc.java
+
