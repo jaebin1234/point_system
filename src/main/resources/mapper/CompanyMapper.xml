@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "<http://mybatis.org/dtd/mybatis-3-mapper.dtd>">
+
+<mapper namespace="com.common.point.dao.mapper.CompanyMapper">
+
+    <select id="selectCompanyList" resultType="com.common.point.model.dto.Company">
+        SELECT company_no, company_reg_no, company_name
+        FROM company
+    </select>
+
+</mapper>
