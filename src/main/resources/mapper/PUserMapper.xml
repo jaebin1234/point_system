@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.common.point.dao.mapper.UserMapper">
+
+     <select id="insertPUser">
+        INSERT INTO p_user (user_name)
+        VALUES (#{userName})
+        RETURNING user_no AS userNo;
+    </select>
+
+    <delete id="deleteAllUsers">
+        DELETE FROM p_user;
+    </delete>
+
+
+</mapper>
