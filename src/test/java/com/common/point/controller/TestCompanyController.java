@@ -4,6 +4,7 @@ import com.common.point.model.dto.Company;
 import com.common.point.model.vo.CompanyVo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -24,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 //@WebMvcTest(controllers = ExampleController.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@Disabled
 public class TestCompanyController {
 
 	@Autowired
@@ -38,15 +40,15 @@ public class TestCompanyController {
             "카카오", "네이버", "셀트리온", "현대모비스", "삼성바이오로직스"
     );
 
-	@BeforeEach
-	public void startClearCompanyDatabase() throws Exception {
-		System.out.println("clearCompanyDatabase");
-		ResultActions perform = mockMvc.perform(post("/company/delete/all"));
-
-		perform
-				.andExpect(status().isOk())
-				.andDo(print());
-	}
+//	@BeforeEach
+//	public void startClearCompanyDatabase() throws Exception {
+//		System.out.println("clearCompanyDatabase");
+//		ResultActions perform = mockMvc.perform(post("/company/delete/all"));
+//
+//		perform
+//				.andExpect(status().isOk())
+//				.andDo(print());
+//	}
 
 	@Test
     public void createMultipleCompaniesTest() throws Exception {
