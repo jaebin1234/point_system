@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.common.point.dao.mapper.PointMapper">
+
+    <select id="insertPoint" parameterType="com.common.point.model.vo.PointVo" resultType="java.lang.Integer">
+        INSERT INTO point(company_no)
+        VALUES (#{companyNo})
+        RETURNING point_no
+    </select>
+
+    <delete id="deleteAllPoints">
+        DELETE
+        FROM point;
+    </delete>
+
+</mapper>
