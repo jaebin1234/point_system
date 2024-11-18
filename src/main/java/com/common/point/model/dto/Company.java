@@ -2,10 +2,7 @@ package com.common.point.model.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 
@@ -13,6 +10,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Builder
 @Getter
+@Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Company {
 	// 회사 고유번호
