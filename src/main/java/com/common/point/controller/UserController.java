@@ -27,7 +27,7 @@ public class UserController {
 		return ResponseEntity.ok(response);
 	}
 
-  	@GetMapping("/delete/all")
+  	@PostMapping("/delete/all")
     public ResponseEntity<String> postDeleteAllUser() throws Exception{
 
 		userService.postDeleteAllUser();
