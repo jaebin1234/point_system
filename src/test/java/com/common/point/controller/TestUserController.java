@@ -52,15 +52,16 @@ public class TestUserController {
 	}
 
 	@BeforeEach
-	public void clearUserDatabase() throws Exception {
-		System.out.println("clearUserDatabase");
-		ResultActions perform = mockMvc.perform(get("/user/deleteAll"));
-
-		perform
-				.andExpect(status().isOk())
-				.andDo(print());
-
+	public void startClearUserDatabase() throws Exception {
+//		System.out.println("clearUserDatabase");
+//		ResultActions perform = mockMvc.perform(get("/user/delete/all"));
+//
+//		perform
+//				.andExpect(status().isOk())
+//				.andDo(print());
 	}
+
+
 
 	@Test
 	public void createMultipleRandomKoreanUsers() throws Exception {
@@ -80,5 +81,21 @@ public class TestUserController {
 				e.printStackTrace();
 			}
 		});
+	}
+
+	@Test
+	public void createSingleRandomKoreanUsers() throws Exception {
+		System.out.println("createSingleRandomKoreanUsers");
+
+		String randomName = generateRandomKoreanName();
+		ResultActions perform = mockMvc.perform(post("/user/create")
+				.contentType(MediaType.APPLICATION_JSON_VALUE)
+				.accept(MediaType.APPLICATION_JSON)
+				.param("userName", randomName)
+		);
+		perform
+				.andExpect(status().isOk())
+				.andDo(print());
+
 	}
 }
