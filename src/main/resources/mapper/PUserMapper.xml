@@ -3,14 +3,15 @@
 
 <mapper namespace="com.common.point.dao.mapper.UserMapper">
 
-     <select id="insertPUser">
+    <select id="insertPUser" parameterType="java.lang.String" resultType="java.lang.Integer">
         INSERT INTO p_user (user_name)
         VALUES (#{userName})
-        RETURNING user_no AS userNo;
+        RETURNING user_no;
     </select>
 
     <delete id="deleteAllUsers">
-        DELETE FROM p_user;
+        DELETE
+        FROM p_user;
     </delete>
 
 
