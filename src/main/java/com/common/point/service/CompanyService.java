@@ -1,14 +1,15 @@
 package com.common.point.service;
 
 import com.common.point.dao.mapper.CompanyMapper;
+import com.common.point.dao.mapper.PointMapper;
 import com.common.point.model.dto.Company;
 import com.common.point.model.vo.CompanyVo;
+import com.common.point.model.vo.PointVo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.List;
 
@@ -18,6 +19,7 @@ import java.util.List;
 public class CompanyService {
 
 	private final CompanyMapper companyMapper;
+	private final PointService pointService;
 
 	@Transactional(readOnly = true)
 	public List<Company> getCompanyListAll() throws Exception {
@@ -38,6 +40,8 @@ public class CompanyService {
 
 		int insertCompanyNo = companyMapper.insertCompany(companyVo);
 
+		int insertPointNo = pointService.createPoint(insertCompanyNo);
+
 		return insertCompanyNo;
 	}
 
@@ -45,6 +49,7 @@ public class CompanyService {
 	public ResponseEntity<String> postDeleteAllCompanies() throws Exception {
 
 		companyMapper.deleteAllCompanies();
+		pointService.deleteAllPoints();
 
 		return ResponseEntity.ok("All users deleted");
 	}
