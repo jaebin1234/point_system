@@ -1,15 +1,19 @@
 package com.common.point.model.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Getter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Company {
 	// 회사 고유번호
     private Integer companyNo;
@@ -20,4 +24,15 @@ public class Company {
     // 사업자 번호
     private String companyRegNo;
 
+    // 생성시간
+    private Date insertTimestamp;
+
+    // 수정시간
+    private Date updateTimestamp;
+
+    public Company(Integer companyNo, String companyName, String companyRegNo){
+        this.companyNo = companyNo;
+        this.companyName = companyName;
+        this.companyRegNo = companyRegNo;
+    }
 }
