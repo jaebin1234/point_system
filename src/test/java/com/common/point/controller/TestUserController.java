@@ -83,8 +83,8 @@ public class TestUserController {
 		});
 	}
 
-	@Test
-	public void createSingleRandomKoreanUsers() throws Exception {
+//	@Test
+//	public void createSingleRandomKoreanUsers() throws Exception {
 //		System.out.println("createSingleRandomKoreanUsers");
 //
 //		String randomName = generateRandomKoreanName();
@@ -97,5 +97,6 @@ public class TestUserController {
 //				.andExpect(status().isOk())
 //				.andDo(print());
 
-	}
+//	}
+
 }
