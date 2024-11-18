@@ -8,4 +8,15 @@
         FROM company
     </select>
 
+    <select id="insertCompany" parameterType="com.common.point.model.vo.CompanyVo" resultType="java.lang.Integer">
+        INSERT INTO company (company_name, company_reg_no)
+        VALUES (#{companyName}, #{companyRegNo})
+        RETURNING company_no
+    </select>
+
+    <delete id="deleteAllCompanies">
+        DELETE
+        FROM company;
+    </delete>
+
 </mapper>
