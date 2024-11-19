@@ -3,6 +3,12 @@
 
 <mapper namespace="com.common.point.dao.mapper.PointMapper">
 
+    <select id="selectPointByCompanyNo" parameterType="java.lang.Integer" resultType="com.common.point.model.dto.Point">
+        SELECT point_no, company_no, paid_point, free_point
+        FROM point
+        where company_no = #{companyNo}
+    </select>
+
     <select id="insertPoint" parameterType="com.common.point.model.vo.PointVo" resultType="java.lang.Integer">
         INSERT INTO point(company_no)
         VALUES (#{companyNo})
@@ -14,4 +20,36 @@
         FROM point;
     </delete>
 
+    <select id="insertPointHistory"
+            parameterType="com.common.point.model.vo.PointHistoryVo"
+            resultType="com.common.point.model.dto.PointHistory">
+        INSERT INTO point_history(company_no, user_no, point_type, point_action_type, point, point_group_key, description)
+        VALUES (#{companyNo},#{userNo}, #{pointType}, #{pointActionType}, #{point}, #{pointGroupKey}, #{description})
+        RETURNING point_history_no as pointHistoryNo, update_timestamp as updateTimestamp
+    </select>
+
+    <update id="updatePoint" parameterType="com.common.point.model.vo.PointVo">
+        UPDATE point
+        <set>
+            <if test="paidPoint != null">
+                paid_point = #{paidPoint},
+            </if>
+            <if test="paidPointChargeTimestamp != null">
+                paid_point_charge_timestamp = #{paidPointChargeTimestamp},
+            </if>
+            <if test="paidPointUseTimestamp != null">
+                paid_point_use_timestamp = #{paidPointUseTimestamp},
+            </if>
+            <if test="freePoint != null">
+                free_point = #{freePoint},
+            </if>
+            <if test="freePointChargeTimestamp != null">
+                free_point_charge_timestamp = #{freePointChargeTimestamp},
+            </if>
+            <if test="freePointUseTimestamp != null">
+                free_point_use_timestamp = #{freePointUseTimestamp},
+            </if>
+        </set>
+        WHERE company_no = #{companyNo}
+    </update>
 </mapper>
