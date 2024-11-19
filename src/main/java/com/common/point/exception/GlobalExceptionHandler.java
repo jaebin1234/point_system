@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
-@RestControllerAdvice
+@RestControllerAdvice(basePackages = {"com.common.point.controller", "com.common.point.test"})
 public class GlobalExceptionHandler {
 
 	@ExceptionHandler({PointServerException.class})
@@ -22,6 +22,12 @@ public class GlobalExceptionHandler {
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(400, e.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
+
+	@ExceptionHandler(NullPointerException.class)
+	public ResponseEntity<ErrorResponseDTO> handleGeneralNullPointerException(NullPointerException e) {
+		ErrorResponseDTO errorResponse = new ErrorResponseDTO(500, e.getMessage());
+		return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ErrorResponseDTO> handleGeneralException(Exception e) {
