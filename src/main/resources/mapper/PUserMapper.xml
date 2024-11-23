@@ -3,6 +3,11 @@
 
 <mapper namespace="com.common.point.dao.mapper.UserMapper">
 
+    <select id="selectPUserList" resultType="com.common.point.model.dto.PUser">
+        SELECT user_no, user_name
+        FROM p_user
+    </select>
+
     <select id="insertPUser" parameterType="java.lang.String" resultType="java.lang.Integer">
         INSERT INTO p_user (user_name)
         VALUES (#{userName})
