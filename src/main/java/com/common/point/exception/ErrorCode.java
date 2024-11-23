@@ -11,7 +11,8 @@ import lombok.Getter;
 public enum ErrorCode {
     BAD_REQUEST_REQUEST_PARAM(400, "Bad Request Parameter"),
     NO_POINT_LEFT(400, "There are no points left."),
-    POINT_UPDATE_FAIL(201, "Point update failed."),
+    NOT_ENOUGH_POINTS(400, "not enough points."),
+    POINT_UPDATE_FAIL(409, "Point update failed."),
     SERVER_ERROR(500, "Server Error");
 
     private final int status;
