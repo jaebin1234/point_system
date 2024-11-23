@@ -4,16 +4,13 @@ import com.common.point.dao.mapper.CompanyMapper;
 import com.common.point.dao.mapper.UserMapper;
 import com.common.point.model.dto.Company;
 import com.common.point.model.dto.PUser;
-import com.common.point.model.dto.PointChargeRequest;
-import com.common.point.model.dto.PointChargeResponse;
-import com.common.point.service.PointChargeService;
+import com.common.point.model.dto.PointChargeAndUseRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -21,7 +18,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.util.List;
 import java.util.Random;
 
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -60,7 +56,7 @@ public class TestPointChargeController {
                 boolean isPaid = random.nextBoolean(); // 유상/무상 포인트 결정
                 int randomPoint = (random.nextInt(30) + 1) * 100;
 
-                PointChargeRequest pointChargeRequest = PointChargeRequest.builder()
+                PointChargeAndUseRequest pointChargeAndUseRequest = PointChargeAndUseRequest.builder()
                         .companyNo(companyList.get(i).getCompanyNo())
                         .userNo(pUserList.get(j).getUserNo())
                         .point(randomPoint)
@@ -69,7 +65,7 @@ public class TestPointChargeController {
                         .description(isPaid ? "유상 포인트 충전" : "무상 포인트 충전")
                         .build();
 
-                String requestBody = objectMapper.writeValueAsString(pointChargeRequest);
+                String requestBody = objectMapper.writeValueAsString(pointChargeAndUseRequest);
 
                 ResultActions perform = mockMvc.perform(post("/point/charge/create")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -87,17 +83,17 @@ public class TestPointChargeController {
 	@Test
 	public void testPaidPointCharge() throws Exception {
 
-		PointChargeRequest pointChargeRequest = PointChargeRequest.builder()
-				.companyNo(25)
-				.userNo(32)
-				.point(200)
+		PointChargeAndUseRequest pointChargeAndUseRequest = PointChargeAndUseRequest.builder()
+				.companyNo(26)
+				.userNo(31)
+				.point(100)
 				.pointType("C")
 //				.pointActionType("D")
 				.pointActionType("A")
 				.description("유상 포인트 충전 테스트")
 				.build();
 
-		String requestBody = objectMapper.writeValueAsString(pointChargeRequest);
+		String requestBody = objectMapper.writeValueAsString(pointChargeAndUseRequest);
 
 
 		ResultActions perform = mockMvc.perform(post("/point/charge")
@@ -113,7 +109,7 @@ public class TestPointChargeController {
 	@Test
 	public void testFreePointCharge() throws Exception {
 
-		PointChargeRequest pointChargeRequest = PointChargeRequest.builder()
+		PointChargeAndUseRequest pointChargeAndUseRequest = PointChargeAndUseRequest.builder()
 				.companyNo(25)
 				.userNo(31)
 				.point(50)
@@ -122,7 +118,7 @@ public class TestPointChargeController {
 				.description("무상 포인트 충전 테스트")
 				.build();
 
-		String requestBody = objectMapper.writeValueAsString(pointChargeRequest);
+		String requestBody = objectMapper.writeValueAsString(pointChargeAndUseRequest);
 
 
 		ResultActions perform = mockMvc.perform(post("/point/charge")
