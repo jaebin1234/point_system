@@ -7,24 +7,22 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PointChargeResponse {
+public class PointChargeAndUseResponse {
 
 	@NotNull
 	private Integer companyNo;
 	@NotNull
 	private Integer userNo;
 	private Integer pointNo;
-	private Integer pointHistoryNo;
+	private List<Integer> pointHistoryNoList;
 	private int point;
-
-	public PointChargeResponse(Integer pointHistoryNo){
-		this.pointHistoryNo = pointHistoryNo;
-	}
 
 }
