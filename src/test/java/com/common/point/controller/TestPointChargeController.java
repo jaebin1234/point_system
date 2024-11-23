@@ -90,7 +90,7 @@ public class TestPointChargeController {
 		PointChargeRequest pointChargeRequest = PointChargeRequest.builder()
 				.companyNo(25)
 				.userNo(32)
-				.point(1000)
+				.point(200)
 				.pointType("C")
 //				.pointActionType("D")
 				.pointActionType("A")
@@ -100,7 +100,7 @@ public class TestPointChargeController {
 		String requestBody = objectMapper.writeValueAsString(pointChargeRequest);
 
 
-		ResultActions perform = mockMvc.perform(post("/point/charge/create")
+		ResultActions perform = mockMvc.perform(post("/point/charge")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(requestBody)
 				.accept(MediaType.APPLICATION_JSON)
@@ -115,8 +115,8 @@ public class TestPointChargeController {
 
 		PointChargeRequest pointChargeRequest = PointChargeRequest.builder()
 				.companyNo(25)
-				.userNo(32)
-				.point(250)
+				.userNo(31)
+				.point(50)
 				.pointType("E")
 				.pointActionType("A")
 				.description("무상 포인트 충전 테스트")
@@ -125,7 +125,7 @@ public class TestPointChargeController {
 		String requestBody = objectMapper.writeValueAsString(pointChargeRequest);
 
 
-		ResultActions perform = mockMvc.perform(post("/point/charge/create")
+		ResultActions perform = mockMvc.perform(post("/point/charge")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(requestBody)
 				.accept(MediaType.APPLICATION_JSON)

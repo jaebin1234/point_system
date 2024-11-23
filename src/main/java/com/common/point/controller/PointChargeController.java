@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/point/charge")
+@RequestMapping("/point")
 @RequiredArgsConstructor
 @Slf4j
 public class PointChargeController {
@@ -24,7 +24,7 @@ public class PointChargeController {
 
 	//현재 auth 시스템이 존재 하지않아 company_no와 user_no를 직접 받습니다.
 	//원래는 Oauth 2.0 방식으로 토큰서버를 따로 두고, 해당 토큰으로 인증 과정을 거친 뒤, 세션 데이터에서 company_no와 user_no를 가져옵니다.
-	@PostMapping("/create")
+	@PostMapping("/charge")
 	public ResponseEntity<Response<PointChargeResponse>> postPointChargeCreate(@RequestBody PointChargeRequest pointChargeRequest) throws Exception {
 
 		final PointChargeResponse pointChargeResponse = pointChargeService.postPointChargeCreateIF(pointChargeRequest);
