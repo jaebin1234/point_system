@@ -4,10 +4,9 @@ import com.common.point.dao.mapper.PointMapper;
 import com.common.point.exception.ErrorCode;
 import com.common.point.exception.PointServerException;
 import com.common.point.model.dto.Point;
-import com.common.point.model.dto.PointChargeRequest;
-import com.common.point.model.dto.PointChargeResponse;
+import com.common.point.model.dto.PointChargeAndUseRequest;
+import com.common.point.model.dto.PointChargeAndUseResponse;
 import com.common.point.model.dto.PointHistory;
-import com.common.point.model.vo.PUserVo;
 import com.common.point.model.vo.PointHistoryVo;
 import com.common.point.model.vo.PointVo;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -26,10 +27,10 @@ public class PointChargeService {
 	private final PointMapper pointMapper;
 
 	@Transactional(readOnly = false)
-	public PointChargeResponse postPointChargeCreateIF(PointChargeRequest pointChargeRequest) throws Exception {
+	public PointChargeAndUseResponse postPointChargeCreateIF(PointChargeAndUseRequest pointChargeAndUseRequest) throws Exception {
 
-		final String pointType = pointChargeRequest.getPointType();
-		final String pointActionType = pointChargeRequest.getPointActionType();
+		final String pointType = pointChargeAndUseRequest.getPointType();
+		final String pointActionType = pointChargeAndUseRequest.getPointActionType();
 
 		if(!"A".equals(pointActionType)){
 			throw new PointServerException(ErrorCode.BAD_REQUEST_REQUEST_PARAM);
@@ -39,15 +40,16 @@ public class PointChargeService {
 			throw new PointServerException(ErrorCode.BAD_REQUEST_REQUEST_PARAM);
 		}
 
-		PointChargeResponse pointChargeResponse = postPointChargeCreate(pointChargeRequest);
+		PointChargeAndUseResponse pointChargeAndUseResponse = postPointChargeCreate(pointChargeAndUseRequest);
 
-		return pointChargeResponse;
+		return pointChargeAndUseResponse;
 	}
 
-	private PointChargeResponse postPointChargeCreate(PointChargeRequest pointChargeRequest) throws Exception{
-		final String pointType = pointChargeRequest.getPointType();
-		final Integer companyNo = pointChargeRequest.getCompanyNo();
-		final int chargePoint = pointChargeRequest.getPoint();
+	private PointChargeAndUseResponse postPointChargeCreate(PointChargeAndUseRequest pointChargeAndUseRequest) throws Exception{
+		final String pointType = pointChargeAndUseRequest.getPointType();
+		final Integer companyNo = pointChargeAndUseRequest.getCompanyNo();
+//		final int chargePoint = pointChargeAndUseRequest.getPoint();
+		int chargePoint = pointChargeAndUseRequest.getPoint();
 
 		Point beforePoint = pointMapper.selectPointByCompanyNo(companyNo);
 
@@ -55,21 +57,27 @@ public class PointChargeService {
 
 		PointHistoryVo pointHistoryVo = PointHistoryVo.builder()
 				.companyNo(companyNo)
-				.userNo(pointChargeRequest.getUserNo())
-				.pointType(pointChargeRequest.getPointType())
-				.pointActionType(pointChargeRequest.getPointActionType())
+				.userNo(pointChargeAndUseRequest.getUserNo())
+				.pointType(pointChargeAndUseRequest.getPointType())
+				.pointActionType(pointChargeAndUseRequest.getPointActionType())
 				.point(chargePoint)
 				.pointGroupKey(pointGroupKey)
-				.description(pointChargeRequest.getDescription())
+				.description(pointChargeAndUseRequest.getDescription())
 				.build();
 
 		PointHistory pointHistory = pointMapper.insertPointHistory(pointHistoryVo);
 
+		List<Integer> pointHistoryNoList =  new ArrayList<>();
+		pointHistoryNoList.add(pointHistory.getPointHistoryNo());
+
 		Date currentDate = pointHistory.getUpdateTimestamp();
 
-		pointChargeRequest.setCurrentTimeStamp(currentDate);
+		pointChargeAndUseRequest.setCurrentTimeStamp(currentDate);
 
 		PointVo pointVo = new PointVo();
+
+		// 예시로 paidPoint를 0아래로 만들어서 익셉션 내보기
+		//chargePoint = -1000;
 
 		if("C".equals(pointType)){
 			pointVo = PointVo.builder()
@@ -91,11 +99,12 @@ public class PointChargeService {
 			throw new PointServerException(ErrorCode.POINT_UPDATE_FAIL);
 		}
 
-		PointChargeResponse pointChargeResponse = PointChargeResponse.builder()
-				.pointHistoryNo(pointHistory.getPointHistoryNo())
+
+		PointChargeAndUseResponse pointChargeAndUseResponse = PointChargeAndUseResponse.builder()
+				.pointHistoryNoList(pointHistoryNoList)
 				.build();
 
-		return pointChargeResponse;
+		return pointChargeAndUseResponse;
 	}
 
 	private String generateUUID20(){

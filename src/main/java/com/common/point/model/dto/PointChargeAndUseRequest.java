@@ -13,7 +13,7 @@ import java.util.Date;
 @Builder
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PointChargeRequest {
+public class PointChargeAndUseRequest {
 
 	@NotNull
 	private Integer companyNo;

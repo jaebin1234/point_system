@@ -29,6 +29,7 @@
     </select>
 
     <update id="updatePoint" parameterType="com.common.point.model.vo.PointVo">
+        <if test="paidPoint > 0 or freePoint > 0">
         UPDATE point
         <set>
             <if test="paidPoint != null">
@@ -51,5 +52,6 @@
             </if>
         </set>
         WHERE company_no = #{companyNo}
+        </if>
     </update>
 </mapper>
