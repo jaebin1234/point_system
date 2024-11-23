@@ -48,8 +48,7 @@ public class PointChargeService {
 	private PointChargeAndUseResponse postPointChargeCreate(PointChargeAndUseRequest pointChargeAndUseRequest) throws Exception{
 		final String pointType = pointChargeAndUseRequest.getPointType();
 		final Integer companyNo = pointChargeAndUseRequest.getCompanyNo();
-//		final int chargePoint = pointChargeAndUseRequest.getPoint();
-		int chargePoint = pointChargeAndUseRequest.getPoint();
+		final int chargePoint = pointChargeAndUseRequest.getPoint();
 
 		Point beforePoint = pointMapper.selectPointByCompanyNo(companyNo);
 
