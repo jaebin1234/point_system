@@ -9,6 +9,7 @@ import com.common.point.model.dto.PointChargeAndUseResponse;
 import com.common.point.model.dto.PointHistory;
 import com.common.point.model.vo.PointHistoryVo;
 import com.common.point.model.vo.PointVo;
+import com.common.point.util.Utils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import java.util.UUID;
 public class PointChargeService {
 
 	private final PointMapper pointMapper;
+	private final Utils utils;
 
 	@Transactional(readOnly = false)
 	public PointChargeAndUseResponse postPointChargeCreateIF(PointChargeAndUseRequest pointChargeAndUseRequest) throws Exception {
@@ -52,7 +54,7 @@ public class PointChargeService {
 
 		Point beforePoint = pointMapper.selectPointByCompanyNo(companyNo);
 
-		String pointGroupKey = generateUUID20();
+		String pointGroupKey = utils.generateUUID20();
 
 		PointHistoryVo pointHistoryVo = PointHistoryVo.builder()
 				.companyNo(companyNo)
@@ -98,16 +100,11 @@ public class PointChargeService {
 			throw new PointServerException(ErrorCode.POINT_UPDATE_FAIL);
 		}
 
-
 		PointChargeAndUseResponse pointChargeAndUseResponse = PointChargeAndUseResponse.builder()
 				.pointHistoryNoList(pointHistoryNoList)
 				.build();
 
 		return pointChargeAndUseResponse;
-	}
-
-	private String generateUUID20(){
-		return UUID.randomUUID().toString().replace("-", "").substring(0, 20);
 	}
 
 }
