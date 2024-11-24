@@ -116,7 +116,7 @@ public class TestPointChargeController {
 //				.companyNo(25)
 				.companyNo(26)
 				.userNo(31)
-				.point(50)
+				.point(200)
 				.pointType("E")
 				.pointActionType("A")
 				.description("무상 포인트 충전 테스트")
