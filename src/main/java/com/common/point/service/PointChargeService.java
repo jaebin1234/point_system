@@ -49,8 +49,11 @@ public class PointChargeService {
 
 	private PointChargeAndUseResponse postPointChargeCreate(PointChargeAndUseRequest pointChargeAndUseRequest) throws Exception{
 		final String pointType = pointChargeAndUseRequest.getPointType();
+		final String pointActionType = pointChargeAndUseRequest.getPointActionType();
 		final Integer companyNo = pointChargeAndUseRequest.getCompanyNo();
+		final Integer userNo = pointChargeAndUseRequest.getUserNo();
 		final int chargePoint = pointChargeAndUseRequest.getPoint();
+		List<Integer> pointHistoryNoList = new ArrayList<>();
 
 		Point beforePoint = pointMapper.selectPointByCompanyNo(companyNo);
 
@@ -62,17 +65,15 @@ public class PointChargeService {
 
 		PointHistoryVo pointHistoryVo = PointHistoryVo.builder()
 				.companyNo(companyNo)
-				.userNo(pointChargeAndUseRequest.getUserNo())
-				.pointType(pointChargeAndUseRequest.getPointType())
-				.pointActionType(pointChargeAndUseRequest.getPointActionType())
+				.userNo(userNo)
+				.pointType(pointType)
+				.pointActionType(pointActionType)
 				.point(chargePoint)
 				.pointGroupKey(pointGroupKey)
 				.description(pointChargeAndUseRequest.getDescription())
 				.build();
 
 		PointHistory pointHistory = pointMapper.insertPointHistory(pointHistoryVo);
-
-		List<Integer> pointHistoryNoList =  new ArrayList<>();
 		pointHistoryNoList.add(pointHistory.getPointHistoryNo());
 
 		Date currentDate = pointHistory.getUpdateTimestamp();
