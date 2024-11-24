@@ -55,6 +55,11 @@ public class PointUseService {
 			throw new PointServerException(ErrorCode.NOT_EXISTS_COMPANY_POINTS);
 		}
 
+		// 동시성 문제 테스트 예시 코드
+		if(userNo == 31){
+			Thread.sleep(1500);
+		}
+
 		String pointGroupKey = utils.generateUUID20();
 		final int beforePaidPoint = beforePoint.getPaidPoint();
 		final int beforeFreePoint = beforePoint.getFreePoint();
