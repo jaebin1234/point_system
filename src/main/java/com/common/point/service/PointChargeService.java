@@ -35,11 +35,11 @@ public class PointChargeService {
 		final String pointActionType = pointChargeAndUseRequest.getPointActionType();
 
 		if(!"A".equals(pointActionType)){
-			throw new PointServerException(ErrorCode.BAD_REQUEST_REQUEST_PARAM);
+			throw new PointServerException(ErrorCode.BAD_REQUEST_PARAM);
 		}
 
 		if(!"E".equals(pointType) && !"C".equals(pointType)){
-			throw new PointServerException(ErrorCode.BAD_REQUEST_REQUEST_PARAM);
+			throw new PointServerException(ErrorCode.BAD_REQUEST_PARAM);
 		}
 
 		PointChargeAndUseResponse pointChargeAndUseResponse = postPointChargeCreate(pointChargeAndUseRequest);
@@ -53,6 +53,10 @@ public class PointChargeService {
 		final int chargePoint = pointChargeAndUseRequest.getPoint();
 
 		Point beforePoint = pointMapper.selectPointByCompanyNo(companyNo);
+
+		if(beforePoint == null){
+			throw new PointServerException(ErrorCode.NOT_EXISTS_COMPANY_POINTS);
+		}
 
 		String pointGroupKey = utils.generateUUID20();
 
