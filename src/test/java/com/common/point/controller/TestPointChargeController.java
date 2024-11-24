@@ -84,8 +84,10 @@ public class TestPointChargeController {
 	public void testPaidPointCharge() throws Exception {
 
 		PointChargeAndUseRequest pointChargeAndUseRequest = PointChargeAndUseRequest.builder()
-				.companyNo(26)
-				.userNo(31)
+//				.companyNo(26)
+				.companyNo(28)
+//				.userNo(31)
+				.userNo(32)
 				.point(100)
 				.pointType("C")
 //				.pointActionType("D")
