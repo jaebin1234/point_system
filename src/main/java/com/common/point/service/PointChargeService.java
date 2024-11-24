@@ -63,6 +63,8 @@ public class PointChargeService {
 
 		String pointGroupKey = utils.generateUUID20();
 
+		Date currentDate = new Date();
+
 		PointHistoryVo pointHistoryVo = PointHistoryVo.builder()
 				.companyNo(companyNo)
 				.userNo(userNo)
@@ -71,12 +73,12 @@ public class PointChargeService {
 				.point(chargePoint)
 				.pointGroupKey(pointGroupKey)
 				.description(pointChargeAndUseRequest.getDescription())
+				.insertTimestamp(currentDate)
+				.updateTimestamp(currentDate)
 				.build();
 
 		PointHistory pointHistory = pointMapper.insertPointHistory(pointHistoryVo);
 		pointHistoryNoList.add(pointHistory.getPointHistoryNo());
-
-		Date currentDate = pointHistory.getUpdateTimestamp();
 
 		pointChargeAndUseRequest.setCurrentTimeStamp(currentDate);
 
