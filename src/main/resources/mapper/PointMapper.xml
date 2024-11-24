@@ -33,6 +33,7 @@
             <if test="pointGroupKey != null">point_group_key,</if>
             <if test="description != null">description,</if>
             <if test="insertTimestamp != null">insert_timestamp,</if>
+            <if test="updateTimestamp != null">update_timestamp,</if>
         </trim>
         <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
             <if test="companyNo != null">#{companyNo},</if>
@@ -43,8 +44,9 @@
             <if test="pointGroupKey != null">#{pointGroupKey},</if>
             <if test="description != null">#{description},</if>
             <if test="insertTimestamp != null">#{insertTimestamp},</if>
+            <if test="updateTimestamp != null">#{updateTimestamp},</if>
         </trim>
-        RETURNING point_history_no as pointHistoryNo, update_timestamp as updateTimestamp
+        RETURNING point_history_no as pointHistoryNo, insert_timestamp as insertTimestamp, update_timestamp as updateTimestamp
     </select>
 
     <update id="updatePoint" parameterType="com.common.point.model.vo.PointVo">
