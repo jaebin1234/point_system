@@ -23,8 +23,27 @@
     <select id="insertPointHistory"
             parameterType="com.common.point.model.vo.PointHistoryVo"
             resultType="com.common.point.model.dto.PointHistory">
-        INSERT INTO point_history(company_no, user_no, point_type, point_action_type, point, point_group_key, description)
-        VALUES (#{companyNo},#{userNo}, #{pointType}, #{pointActionType}, #{point}, #{pointGroupKey}, #{description})
+        INSERT INTO point_history
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="companyNo != null">company_no,</if>
+            <if test="userNo != null">user_no,</if>
+            <if test="pointType != null">point_type,</if>
+            <if test="pointActionType != null">point_action_type,</if>
+            <if test="point != null">point,</if>
+            <if test="pointGroupKey != null">point_group_key,</if>
+            <if test="description != null">description,</if>
+            <if test="insertTimestamp != null">insert_timestamp,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="companyNo != null">#{companyNo},</if>
+            <if test="userNo != null">#{userNo},</if>
+            <if test="pointType != null">#{pointType},</if>
+            <if test="pointActionType != null">#{pointActionType},</if>
+            <if test="point != null">#{point},</if>
+            <if test="pointGroupKey != null">#{pointGroupKey},</if>
+            <if test="description != null">#{description},</if>
+            <if test="insertTimestamp != null">#{insertTimestamp},</if>
+        </trim>
         RETURNING point_history_no as pointHistoryNo, update_timestamp as updateTimestamp
     </select>
 
