@@ -67,7 +67,7 @@ public class TestPointChargeController {
 
                 String requestBody = objectMapper.writeValueAsString(pointChargeAndUseRequest);
 
-                ResultActions perform = mockMvc.perform(post("/point/charge/create")
+                ResultActions perform = mockMvc.perform(post("/point/charge")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
                         .accept(MediaType.APPLICATION_JSON)
@@ -84,11 +84,12 @@ public class TestPointChargeController {
 	public void testPaidPointCharge() throws Exception {
 
 		PointChargeAndUseRequest pointChargeAndUseRequest = PointChargeAndUseRequest.builder()
-//				.companyNo(26)
-				.companyNo(28)
+				.companyNo(26)
+//				.companyNo(27)
+//				.companyNo(28)
 //				.userNo(31)
 				.userNo(32)
-				.point(100)
+				.point(1000)
 				.pointType("C")
 //				.pointActionType("D")
 				.pointActionType("A")
@@ -112,7 +113,8 @@ public class TestPointChargeController {
 	public void testFreePointCharge() throws Exception {
 
 		PointChargeAndUseRequest pointChargeAndUseRequest = PointChargeAndUseRequest.builder()
-				.companyNo(25)
+//				.companyNo(25)
+				.companyNo(26)
 				.userNo(31)
 				.point(50)
 				.pointType("E")
