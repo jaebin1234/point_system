@@ -4,7 +4,8 @@
 1. 포인트 충전/차감 시스템에서 발생할 수 있는 동시성 문제를 해결
 2. 포인트 정산을 위한 대규모 데이터 처리를 효율적으로 수행
 3. 해당 프로젝트는 **Spring Boot**, **Apache Kafka**, **Spring WebFlux**, **Spring Batch**를 활용하여 신뢰성 높은 포인트 트랜잭션 관리 시스템을 구현
-
+  1. kafka : https://github.com/jaebin1234/point_system_kafka
+  2. webflux :  https://github.com/jaebin1234/point_recovery_system_webflux
 ---
 
 ## 🗂️ 프로젝트 구조 및 계획
