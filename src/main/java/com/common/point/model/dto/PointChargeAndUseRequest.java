@@ -3,9 +3,12 @@ package com.common.point.model.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 
 @AllArgsConstructor
@@ -25,9 +28,9 @@ public class PointChargeAndUseRequest {
 	private String pointActionType;
 	private String description;
 
-	private Date currentTimeStamp;
+	private LocalDateTime currentTimeStamp;
 
-	public void setCurrentTimeStamp(Date currentTimeStamp) {
+	public void setCurrentTimeStamp(LocalDateTime currentTimeStamp) {
 		this.currentTimeStamp = currentTimeStamp;
 	}
 

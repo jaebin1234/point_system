@@ -3,7 +3,7 @@ package com.common.point.model.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,23 +22,23 @@ public class Point {
     private Integer paidPoint;
 
     // 유상 포인트 충전 시간
-    private Date paidPointChargeTimestamp;
+    private LocalDateTime paidPointChargeTimestamp;
 
     // 유상 포인트 차감 시간
-    private Date paidPointUseTimestamp;
+    private LocalDateTime paidPointUseTimestamp;
 
     // 무상 포인트
     private Integer freePoint;
 
     // 무상 포인트 충전 시간
-    private Date freePointChargeTimestamp;
+    private LocalDateTime freePointChargeTimestamp;
 
     // 무상 포인트 차감 시간
-    private Date freePointUseTimestamp;
+    private LocalDateTime freePointUseTimestamp;
 
     // 생성시간
-    private Date insertTimestamp;
+    private LocalDateTime insertTimestamp;
 
     // 수정시간
-    private Date updateTimestamp;
+    private LocalDateTime updateTimestamp;
 }

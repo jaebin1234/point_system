@@ -15,10 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -63,7 +62,7 @@ public class PointChargeService {
 
 		String pointGroupKey = utils.generateUUID20();
 
-		Date currentDate = new Date();
+		LocalDateTime currentDate = LocalDateTime.now();
 
 		PointHistoryVo pointHistoryVo = PointHistoryVo.builder()
 				.companyNo(companyNo)
@@ -104,6 +103,7 @@ public class PointChargeService {
 		final int updateRow = pointMapper.updatePoint(pointVo);
 
 		if(updateRow != 1){
+			// 낙관적 락
 			throw new PointServerException(ErrorCode.POINT_UPDATE_FAIL);
 		}
 

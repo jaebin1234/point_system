@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,8 +23,8 @@ public class PUser {
     private String userName;
 
     // 생성시간
-    private Date insertTimestamp;
+    private LocalDateTime insertTimestamp;
 
     // 수정시간
-    private Date updateTimestamp;
+    private LocalDateTime updateTimestamp;
 }
