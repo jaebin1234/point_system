@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,9 +21,9 @@ public class CompanyVo {
     private String companyRegNo;
 
     // 생성시간
-    private Date insertTimestamp;
+    private LocalDateTime insertTimestamp;
 
     // 수정시간
-    private Date updateTimestamp;
+    private LocalDateTime updateTimestamp;
 
 }

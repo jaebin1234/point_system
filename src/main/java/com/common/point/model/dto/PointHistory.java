@@ -3,7 +3,7 @@ package com.common.point.model.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -40,8 +40,8 @@ public class PointHistory {
     private String description;
 
     // 생성시간
-    private Date insertTimestamp;
+    private LocalDateTime insertTimestamp;
 
     // 수정시간
-    private Date updateTimestamp;
+    private LocalDateTime updateTimestamp;
 }

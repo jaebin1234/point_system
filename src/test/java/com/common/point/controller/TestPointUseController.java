@@ -37,16 +37,16 @@ public class TestPointUseController {
 		// FixedThreadPool(2): 두 개의 고정된 스레드로 구성된 스레드 풀 생성
 		ExecutorService executorService = Executors.newFixedThreadPool(2);
 
-		// 첫 번째 사용자 (userNo: 31)의 포인트 차감 작업
+		// 첫 번째 사용자 (userNo: 33)의 포인트 차감 작업
 		Runnable task1 = () -> {
 			try {
 				// PointChargeAndUseRequest: 포인트 차감 요청을 나타내는 DTO
 				PointChargeAndUseRequest request = PointChargeAndUseRequest.builder()
 						.companyNo(companyNo) // 회사 번호
-						.userNo(31)          // 사용자 번호 (31번 사용자)
+						.userNo(33)          // 사용자 번호 (31번 사용자)
 						.point(100)           // 차감할 포인트 (10포인트)
 						.pointActionType("U") // 액션 유형 (U: 차감)
-						.description("사용자 31 동시 100 포인트 차감 테스트") // 요청 설명
+						.description("사용자 33 동시 100 포인트 차감 테스트") // 요청 설명
 						.build();
 
 				// ObjectMapper: Java 객체를 JSON 문자열로 변환하는 유틸리티 클래스
@@ -65,15 +65,15 @@ public class TestPointUseController {
 			}
 		};
 
-		// 두 번째 사용자 (userNo: 32)의 포인트 차감 작업
+		// 두 번째 사용자 (userNo: 34)의 포인트 차감 작업
 		Runnable task2 = () -> {
 			try {
 				PointChargeAndUseRequest request = PointChargeAndUseRequest.builder()
 						.companyNo(companyNo) // 회사 번호
-						.userNo(32)          // 사용자 번호 (32번 사용자)
+						.userNo(34)          // 사용자 번호 (32번 사용자)
 						.point(200)           // 차감할 포인트 (200포인트)
 						.pointActionType("U") // 액션 유형 (U: 차감)
-						.description("사용자 32 동시 200 포인트 차감 테스트") // 요청 설명
+						.description("사용자 34 동시 200 포인트 차감 테스트") // 요청 설명
 						.build();
 
 				String requestBody = objectMapper.writeValueAsString(request);
@@ -117,11 +117,11 @@ public class TestPointUseController {
 			try {
 				PointChargeAndUseRequest request = PointChargeAndUseRequest.builder()
 						.companyNo(companyNo)
-						.userNo(31) // 사용자 31
+						.userNo(33) // 사용자 33
 						.point(point)
 						.pointType("E")
 						.pointActionType("U")
-						.description("사용자 31 동시 포인트 차감 테스트")
+						.description("사용자 33 동시 포인트 차감 테스트")
 						.build();
 
 				String requestBody = objectMapper.writeValueAsString(request);
@@ -141,11 +141,11 @@ public class TestPointUseController {
 			try {
 				PointChargeAndUseRequest request = PointChargeAndUseRequest.builder()
 						.companyNo(companyNo)
-						.userNo(32) // 사용자 32
+						.userNo(34) // 사용자 34
 						.point(point)
 						.pointType("E")
 						.pointActionType("U")
-						.description("사용자 32 동시 포인트 차감 테스트")
+						.description("사용자 34 동시 포인트 차감 테스트")
 						.build();
 
 				String requestBody = objectMapper.writeValueAsString(request);
@@ -171,7 +171,7 @@ public class TestPointUseController {
 		PointChargeAndUseRequest request = PointChargeAndUseRequest.builder()
 //                .companyNo(35)
 				.companyNo(36)
-				.userNo(31)
+				.userNo(33)
 				.point(100)
 //                .pointActionType("A")
 				.pointActionType("U") // 차감
