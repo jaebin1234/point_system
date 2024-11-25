@@ -31,7 +31,7 @@ public class TestPointUseController {
         System.out.println("start testConcurrentPointUse()");
 
 		// 테스트에 사용할 회사 번호
-		int companyNo = 25;
+		int companyNo = 35;
 
 		// ExecutorService: 병렬 작업을 관리하는 Java의 스레드 풀 제공 클래스
 		// FixedThreadPool(2): 두 개의 고정된 스레드로 구성된 스레드 풀 생성
@@ -108,7 +108,7 @@ public class TestPointUseController {
 
 	@Test
 	public void testConcurrentPointUse2() throws Exception {
-		int companyNo = 25;
+		int companyNo = 35;
 		int point = 50;
 
 		// CompletableFuture: 비동기 작업을 처리하는 클래스
@@ -169,8 +169,8 @@ public class TestPointUseController {
 	@Test
 	public void testPaidPointUse() throws Exception {
 		PointChargeAndUseRequest request = PointChargeAndUseRequest.builder()
-//                .companyNo(25)
-				.companyNo(26)
+//                .companyNo(35)
+				.companyNo(36)
 				.userNo(31)
 				.point(100)
 //                .pointActionType("A")

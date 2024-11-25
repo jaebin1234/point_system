@@ -83,20 +83,20 @@ public class TestUserController {
 		});
 	}
 
-//	@Test
-//	public void createSingleRandomKoreanUsers() throws Exception {
-//		System.out.println("createSingleRandomKoreanUsers");
-//
-//		String randomName = generateRandomKoreanName();
-//		ResultActions perform = mockMvc.perform(post("/user/create")
-//				.contentType(MediaType.APPLICATION_JSON_VALUE)
-//				.accept(MediaType.APPLICATION_JSON)
-//				.param("userName", randomName)
-//		);
-//		perform
-//				.andExpect(status().isOk())
-//				.andDo(print());
+	@Test
+	public void createSingleRandomKoreanUsers() throws Exception {
+		System.out.println("createSingleRandomKoreanUsers");
 
-//	}
+		String randomName = generateRandomKoreanName();
+		ResultActions perform = mockMvc.perform(post("/user/create")
+				.contentType(MediaType.APPLICATION_JSON_VALUE)
+				.accept(MediaType.APPLICATION_JSON)
+				.param("userName", randomName)
+		);
+		perform
+				.andExpect(status().isOk())
+				.andDo(print());
+
+	}
 
 }
