@@ -4,7 +4,7 @@
 <mapper namespace="com.common.point.dao.mapper.PointMapper">
 
     <select id="selectPointByCompanyNo" parameterType="java.lang.Integer" resultType="com.common.point.model.dto.Point">
-        SELECT point_no, company_no, paid_point, free_point
+        SELECT point_no, company_no, paid_point, free_point, update_timestamp
         FROM point
         where company_no = #{companyNo}
     </select>
@@ -50,9 +50,9 @@
     </select>
 
     <update id="updatePoint" parameterType="com.common.point.model.vo.PointVo">
-        <if test="paidPoint > 0 or freePoint > 0">
+        <if test="companyNo != null and (paidPoint > 0 or freePoint > 0)">
         UPDATE point
-        <set>
+            <set>
             <if test="paidPoint != null">
                 paid_point = #{paidPoint},
             </if>
@@ -72,7 +72,16 @@
                 free_point_use_timestamp = #{freePointUseTimestamp},
             </if>
         </set>
-        WHERE company_no = #{companyNo}
+            WHERE company_no = #{companyNo}
+            <if test="beforePaidPoint != null">
+                AND paid_point = #{beforePaidPoint}
+            </if>
+            <if test="beforeFreePoint != null">
+                AND free_point = #{beforeFreePoint}
+            </if>
+            <if test="beforeUpdateTimestamp != null">
+                AND update_timestamp = #{beforeUpdateTimestamp}
+            </if>
         </if>
     </update>
 </mapper>

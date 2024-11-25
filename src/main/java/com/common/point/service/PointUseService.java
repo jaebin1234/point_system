@@ -60,7 +60,7 @@ public class PointUseService {
 		// 동시성 문제 테스트 예시 코드
 		if(userNo == 33){
 			log.error("Thread=" + Thread.currentThread().getName() + " sleep");
-			Thread.sleep(1500);
+			Thread.sleep(2000);
 		}
 
 		String pointGroupKey = utils.generateUUID20();
