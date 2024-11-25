@@ -26,6 +26,7 @@ public class PointUseService {
 	private final PointMapper pointMapper;
 	private final Utils utils;
 
+	@Transactional(readOnly = false)
 	public PointChargeAndUseResponse postPointUseIF(PointChargeAndUseRequest pointChargeAndUseRequest) throws Exception {
 		final String pointType = pointChargeAndUseRequest.getPointType();
 		final String pointActionType = pointChargeAndUseRequest.getPointActionType();
