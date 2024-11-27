@@ -15,6 +15,6 @@ public class PointUseFailMessage {
 	private String description;
 	private int point;
 	private long timestamp;
-
+	private String pointGroupKey;
 
 }
