@@ -166,6 +166,7 @@ public class PointUseService {
 					.pointActionType(pointActionType)
 					.point(pointChargeAndUseRequest.getPoint())
 					.timestamp(utils.localDateTimeToLong(beforeUpdateTimestamp))
+					.pointGroupKey(pointGroupKey)
 					.build();
 
 			log.error("start sendMessagePointSystem with data: {}", pointUseFailMessage);
