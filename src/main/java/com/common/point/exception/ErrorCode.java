@@ -13,6 +13,8 @@ public enum ErrorCode {
     NOT_ENOUGH_POINTS(400, "not enough points."),
     NOT_EXISTS_COMPANY_POINTS(400, "not exists company points."),
     POINT_UPDATE_FAIL(409, "Point update failed."),
+    POINT_UPDATE_FAILED_AND_KAFKA_MESSAGE_RETRY_FAILED(500, "Point update failed and kafka retry failed."),
+    POINT_UPDATE_FAILED_AND_KAFKA_MESSAGE_RETRY_SUCCESS(201, "Point update failed and kafka retry success."),
     SERVER_ERROR(500, "Server Error");
 
     private final int status;

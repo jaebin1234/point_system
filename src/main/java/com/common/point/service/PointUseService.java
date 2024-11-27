@@ -3,10 +3,7 @@ package com.common.point.service;
 import com.common.point.dao.mapper.PointMapper;
 import com.common.point.exception.ErrorCode;
 import com.common.point.exception.PointServerException;
-import com.common.point.model.dto.Point;
-import com.common.point.model.dto.PointChargeAndUseRequest;
-import com.common.point.model.dto.PointChargeAndUseResponse;
-import com.common.point.model.dto.PointHistory;
+import com.common.point.model.dto.*;
 import com.common.point.model.vo.PointHistoryVo;
 import com.common.point.model.vo.PointVo;
 import com.common.point.util.Utils;
@@ -25,6 +22,7 @@ import java.util.List;
 public class PointUseService {
 
 	private final PointMapper pointMapper;
+	private final KafkaProducerService kafkaProducerService;
 	private final Utils utils;
 
 	@Transactional(readOnly = false)
@@ -162,7 +160,24 @@ public class PointUseService {
 
 		if(updateRow != 1){
 			// 낙관적 락
-			throw new PointServerException(ErrorCode.POINT_UPDATE_FAIL);
+			PointUseFailMessage pointUseFailMessage = new PointUseFailMessage().builder()
+					.companyNo(companyNo)
+					.userNo(userNo)
+					.pointActionType(pointActionType)
+					.point(pointChargeAndUseRequest.getPoint())
+					.timestamp(utils.localDateTimeToLong(beforeUpdateTimestamp))
+					.build();
+
+			log.error("start sendMessagePointSystem with data: {}", pointUseFailMessage);
+			boolean isSendMessage = kafkaProducerService.sendMessagePointSystem(pointUseFailMessage);
+			log.error("end sendMessagePointSystem, result: {}", isSendMessage);
+
+			if(isSendMessage){
+				throw new PointServerException(ErrorCode.POINT_UPDATE_FAILED_AND_KAFKA_MESSAGE_RETRY_SUCCESS);
+			}else{
+				throw new PointServerException(ErrorCode.POINT_UPDATE_FAIL);
+			}
+
 		}
 
 		PointChargeAndUseResponse pointChargeAndUseResponse = PointChargeAndUseResponse.builder()
