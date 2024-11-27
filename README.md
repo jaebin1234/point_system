@@ -51,8 +51,10 @@
 | **PostgreSQL**    | LTS       |
 | **MyBatis**       | 3.0.3     |
 | **JUnit**         | 5         |
+| **apache kafka**  | 3.9.0     |
+| **Spring KafKa**  | 3.0.10    |
+| **Spring webflux**| LTS       |
 | **Spring Batch**  | LTS       |
-
 ---
 
 ## 🏗️ 시스템 아키텍처
