@@ -34,4 +34,16 @@ public class PointChargeAndUseRequest {
 		this.currentTimeStamp = currentTimeStamp;
 	}
 
+	@Override
+    public String toString() {
+        return "PointChargeAndUseRequest{" +
+                "companyNo=" + companyNo +
+                ", userNo=" + userNo +
+                ", point=" + point +
+                ", pointType='" + pointType + '\'' +
+                ", pointActionType='" + pointActionType + '\'' +
+                ", description='" + description + '\'' +
+                ", currentTimeStamp=" + currentTimeStamp +
+                '}';
+    }
 }
