@@ -11,8 +11,7 @@
 
     <select id="insertPoint" parameterType="com.common.point.model.vo.PointVo" resultType="java.lang.Integer">
         INSERT INTO point(company_no)
-        VALUES (#{companyNo})
-        RETURNING point_no
+        VALUES (#{companyNo}) RETURNING point_no
     </select>
 
     <delete id="deleteAllPoints">
@@ -46,32 +45,33 @@
             <if test="insertTimestamp != null">#{insertTimestamp},</if>
             <if test="updateTimestamp != null">#{updateTimestamp},</if>
         </trim>
-        RETURNING point_history_no as pointHistoryNo, insert_timestamp as insertTimestamp, update_timestamp as updateTimestamp
+        RETURNING point_history_no as pointHistoryNo, insert_timestamp as insertTimestamp, update_timestamp as
+        updateTimestamp
     </select>
 
     <update id="updatePoint" parameterType="com.common.point.model.vo.PointVo">
         <if test="companyNo != null and (paidPoint > 0 or freePoint > 0)">
-        UPDATE point
+            UPDATE point
             <set>
-            <if test="paidPoint != null">
-                paid_point = #{paidPoint},
-            </if>
-            <if test="paidPointChargeTimestamp != null">
-                paid_point_charge_timestamp = #{paidPointChargeTimestamp},
-            </if>
-            <if test="paidPointUseTimestamp != null">
-                paid_point_use_timestamp = #{paidPointUseTimestamp},
-            </if>
-            <if test="freePoint != null">
-                free_point = #{freePoint},
-            </if>
-            <if test="freePointChargeTimestamp != null">
-                free_point_charge_timestamp = #{freePointChargeTimestamp},
-            </if>
-            <if test="freePointUseTimestamp != null">
-                free_point_use_timestamp = #{freePointUseTimestamp},
-            </if>
-        </set>
+                <if test="paidPoint != null">
+                    paid_point = #{paidPoint},
+                </if>
+                <if test="paidPointChargeTimestamp != null">
+                    paid_point_charge_timestamp = #{paidPointChargeTimestamp},
+                </if>
+                <if test="paidPointUseTimestamp != null">
+                    paid_point_use_timestamp = #{paidPointUseTimestamp},
+                </if>
+                <if test="freePoint != null">
+                    free_point = #{freePoint},
+                </if>
+                <if test="freePointChargeTimestamp != null">
+                    free_point_charge_timestamp = #{freePointChargeTimestamp},
+                </if>
+                <if test="freePointUseTimestamp != null">
+                    free_point_use_timestamp = #{freePointUseTimestamp},
+                </if>
+            </set>
             WHERE company_no = #{companyNo}
             <if test="beforePaidPoint != null">
                 AND paid_point = #{beforePaidPoint}
@@ -84,4 +84,28 @@
             </if>
         </if>
     </update>
+
+    <select id="selectPointHistoryList"
+            parameterType="com.common.point.model.dto.PointHistoryRequest"
+            resultType="com.common.point.model.dto.PointHistory">
+        select
+            point_history_no
+        from point_history
+        where 1=1
+        <if test="companyNo != null">
+            AND company_no = #{companyNo}
+        </if>
+        <if test="userNo != null">
+            AND user_no = #{userNo}
+        </if>
+        <if test="pointActionType != null">
+            AND point_action_type = #{pointActionType}
+        </if>
+        <if test="pointGroupKey != null">
+            AND point_group_key = #{pointGroupKey}
+        </if>
+        <if test="insertTimestamp != null">
+            AND insert_timestamp = #{insertTimestamp}
+        </if>
+    </select>
 </mapper>
