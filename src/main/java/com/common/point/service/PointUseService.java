@@ -165,7 +165,8 @@ public class PointUseService {
 					.userNo(userNo)
 					.pointActionType(pointActionType)
 					.point(pointChargeAndUseRequest.getPoint())
-					.timestamp(utils.localDateTimeToLong(beforeUpdateTimestamp))
+					.beforeUpdateTimestamp(utils.localDateTimeToLong(beforeUpdateTimestamp))
+					.updateTimestamp(utils.localDateTimeToLong(currentDate))
 					.pointGroupKey(pointGroupKey)
 					.build();
 
