@@ -32,16 +32,16 @@ public class TestPointHistoryController {
 
 	@Test
 	public void testPointHistoryExists() throws Exception {
-		String dateTimeString = "2024-11-27 18:17:39.929273";
+		String dateTimeString = "2024-11-29 19:48:38.070288";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
 
 
 		PointHistoryRequest request = PointHistoryRequest.builder()
                 .companyNo(35)
-				.userNo(34)
+				.userNo(33)
 				.point(100)
 				.pointActionType("U") // 차감
-				.pointGroupKey("7d2e8e4908fb4996aa08")
+				.pointGroupKey("3d26a2dbcaae47e0b228")
 //				.pointGroupKey("7d2e8e4908fb4996aa09")
 				.insertTimestamp(LocalDateTime.parse(dateTimeString,formatter))
 				.build();
