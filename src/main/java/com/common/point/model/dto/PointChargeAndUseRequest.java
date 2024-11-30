@@ -27,8 +27,8 @@ public class PointChargeAndUseRequest {
 	private String pointType;
 	private String pointActionType;
 	private String description;
-
 	private LocalDateTime currentTimeStamp;
+	private String pointGroupKey;
 
 	public void setCurrentTimeStamp(LocalDateTime currentTimeStamp) {
 		this.currentTimeStamp = currentTimeStamp;
