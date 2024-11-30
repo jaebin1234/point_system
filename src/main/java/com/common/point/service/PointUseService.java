@@ -62,6 +62,11 @@ public class PointUseService {
 		}
 
 		String pointGroupKey = utils.generateUUID20();
+		if(pointChargeAndUseRequest.getPointGroupKey() != null && pointChargeAndUseRequest.getCurrentTimeStamp() != null){
+			pointGroupKey = pointChargeAndUseRequest.getPointGroupKey();
+			currentDate = pointChargeAndUseRequest.getCurrentTimeStamp();
+		}
+
 		final int beforePaidPoint = beforePoint.getPaidPoint();
 		final int beforeFreePoint = beforePoint.getFreePoint();
 		final LocalDateTime beforeUpdateTimestamp = beforePoint.getUpdateTimestamp();
