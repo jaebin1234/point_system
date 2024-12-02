@@ -189,6 +189,7 @@ public class PointUseService {
 
 		PointChargeAndUseResponse pointChargeAndUseResponse = PointChargeAndUseResponse.builder()
 				.pointHistoryNoList(pointHistoryNoList)
+				.point(pointChargeAndUseRequest.getPoint())
 				.build();
 
 		log.error("Thread=" + Thread.currentThread().getName() + " success use point" + " companyNo= "	+ companyNo + " userNo=" + userNo + " usePoint=" + usePoint + " beforePaidPoint=" + beforePaidPoint + " beforeFreePoint=" + beforeFreePoint);

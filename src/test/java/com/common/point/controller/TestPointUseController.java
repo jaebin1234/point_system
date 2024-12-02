@@ -33,6 +33,7 @@ public class TestPointUseController {
 		// 테스트에 사용할 회사 번호
 		int companyNo = 35;
 
+
 		// ExecutorService: 병렬 작업을 관리하는 Java의 스레드 풀 제공 클래스
 		// FixedThreadPool(2): 두 개의 고정된 스레드로 구성된 스레드 풀 생성
 		ExecutorService executorService = Executors.newFixedThreadPool(2);
