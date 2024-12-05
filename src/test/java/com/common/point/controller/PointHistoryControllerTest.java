@@ -1,6 +1,5 @@
 package com.common.point.controller;
 
-import com.common.point.model.dto.PointChargeAndUseRequest;
 import com.common.point.model.dto.PointHistoryRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -13,7 +12,6 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.concurrent.*;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -21,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class TestPointHistoryController {
+public class PointHistoryControllerTest {
 
 	@Autowired
 	private MockMvc mockMvc;

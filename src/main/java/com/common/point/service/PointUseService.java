@@ -56,10 +56,10 @@ public class PointUseService {
 		}
 
 		// 동시성 문제 테스트 예시 코드
-		if(userNo == 33){
-			log.error("Thread=" + Thread.currentThread().getName() + " sleep");
-			Thread.sleep(2000);
-		}
+//		if(userNo == 33){
+//			log.error("Thread=" + Thread.currentThread().getName() + " sleep");
+//			Thread.sleep(2000);
+//		}
 
 		String pointGroupKey = utils.generateUUID20();
 		if(pointChargeAndUseRequest.getPointGroupKey() != null && pointChargeAndUseRequest.getCurrentTimeStamp() != null){

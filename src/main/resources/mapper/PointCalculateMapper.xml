@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.common.point.dao.mapper.PointCalculateMapper">
+    <select id="selectPointYearLastSyncTime" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+        SELECT to_char(
+                       date_trunc('minute', now() :: timestamp) - interval '1 minute' * (extract (minute from
+                           now() :: timestamp):: integer % 5) - interval '10 minute',
+                       'YYYY-MM-DD HH24:MI:SS.FF6') as ts_last_sync,
+               to_char(
+                       date_trunc('minute', now() :: timestamp) - interval '1 minute' * (extract (minute from
+                           now() :: timestamp):: integer % 5) + interval '10 minute',
+                       'YYYY-MM-DD HH24:MI:SS.FF6') as ts_last_sync_end;
+    </select>
+
+    <select id="selectPointCalcTargetList" parameterType="java.util.HashMap"
+            resultType="com.common.point.model.dto.Company">
+        SELECT tc.company_no
+        FROM point tp
+        INNER JOIN company tc ON tp.company_no = tc.company_no
+        WHERE 1=1
+        <if test="yyyymm != null">
+            AND tp.update_timestamp <![CDATA[<]]> #{dateTime} + INTERVAL '1 MONTH'
+            AND tp.update_timestamp <![CDATA[>=]]> #{dateTime}
+        </if>
+        <if test='lastSyncYmdhms != null and !"".equals(lastSyncYmdhms)'>
+            AND tp.update_timestamp <![CDATA[>=]]> #{lastSyncYmdhms}::timestamp(6)
+        </if>
+        <if test='lastSyncYmdhms_end != null and !"".equals(lastSyncYmdhms_end)'>
+            AND tp.update_timestamp <![CDATA[<]]> #{lastSyncYmdhms_end}::timestamp(6)
+        </if>
+        <if test="companyNo != null">
+            and tc.company_no = #{companyNo}::bigint
+        </if>
+        <if test="companyRegNo != null">
+            and tc.company_reg_no = #{companyRegNo}
+        </if>
+        group by tc.company_no
+    </select>
+
+    <select id="selectRemainingPoint" parameterType="java.util.HashMap"
+            resultType="java.util.HashMap">
+        SELECT tc.company_no,
+               COALESCE(SUM(CASE
+                                WHEN to_char(tph.insert_timestamp, 'YYYYMM')<![CDATA[ <]]> #{yyyymm} THEN
+                                    CASE
+                                        WHEN point_type = 'C' AND point_action_type IN ('A', 'T', 'R') THEN point
+                                        WHEN point_type = 'C' AND point_action_type IN ('C', 'U', 'X', 'B') THEN -point
+                                        END
+                                ELSE 0
+                   END
+                        ), 0) AS basic_paid_point, -- 전달 기말 유상 잔액(이번달 기초 유상 잔액)
+
+               COALESCE(SUM(CASE
+                                WHEN to_char(tph.insert_timestamp, 'YYYYMM')<![CDATA[ <]]> #{yyyymm} THEN
+                                    CASE
+                                        WHEN point_type = 'E' AND point_action_type IN ('A', 'T', 'R') THEN point
+                                        WHEN point_type = 'E' AND point_action_type IN ('C', 'U', 'X', 'B') THEN -point
+                                        END
+                                ELSE 0
+                   END
+                        ), 0) AS basic_free_point, -- 전달 기말 무상 잔액(이번달 기초 무상 잔액)
+
+               COALESCE(SUM(CASE
+                                WHEN to_char(tph.insert_timestamp, 'YYYYMM')<![CDATA[ <=]]> #{yyyymm} THEN
+                                    CASE
+                                        WHEN point_type = 'C' AND point_action_type IN ('A', 'T', 'R') THEN point
+                                        WHEN point_type = 'C' AND point_action_type IN ('C', 'U', 'X', 'B') THEN -point
+                                        END
+                                ELSE 0
+                   END
+                        ), 0) AS end_paid_point,   -- 이번달 기말 잔액
+
+               COALESCE(SUM(CASE
+                                WHEN to_char(tph.insert_timestamp, 'YYYYMM')<![CDATA[ <=]]> #{yyyymm} THEN
+                                    CASE
+                                        WHEN point_type = 'E' AND point_action_type IN ('A', 'T', 'R') THEN point
+                                        WHEN point_type = 'E' AND point_action_type IN ('C', 'U', 'X', 'B') THEN -point
+                                        END
+                                ELSE 0
+                   END
+                        ), 0) AS end_free_point    -- 이번달 기말 잔액
+
+        FROM point_history tph
+                 LEFT JOIN
+             company tc ON tph.company_no = tc.company_no
+        WHERE tc.company_no = #{companyNo}
+          AND tph.point_type IN ('C', 'E')
+          AND tph.point_action_type IN ('C', 'A', 'B', 'U', 'T', 'X', 'R')
+        GROUP BY tc.company_no
+    </select>
+
+    <select id="selectActionPoint" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+        SELECT tc.company_no,
+
+               COALESCE(sum(CASE
+                                WHEN
+                                    (tph.point_action_type IN ('A', 'T', 'R') AND tph.point_type IN ('C'))
+                                    THEN tph.point
+                                ELSE 0 END), 0) charge_paid_point,
+
+               COALESCE(sum(CASE
+                                WHEN
+                                    (tph.point_action_type IN ('A', 'T', 'R') AND tph.point_type IN ('E'))
+                                    THEN tph.point
+                                ELSE 0 END), 0) charge_free_point,
+
+               COALESCE(sum(CASE
+                                WHEN (tph.point_action_type in ('C', 'U', 'B', 'X') AND tph.point_type in ('C'))
+                                    THEN tph.point
+                                ELSE 0 END
+                        ), 0) * -1              use_paid_point,
+
+               COALESCE(sum(CASE
+                                WHEN (tph.point_action_type in ('C', 'U', 'B', 'X') AND tph.point_type in ('E'))
+                                    THEN tph.point
+                                ELSE 0 END
+                        ), 0) * -1              use_free_point
+
+        FROM point_history tph
+                 INNER JOIN company tc ON tph.company_no = tc.company_no
+        WHERE tc.company_no = #{companyNo}
+          AND tph.point_type IN ('C', 'E')
+          AND tph.point_action_type IN ('C', 'A', 'B', 'U', 'T', 'X', 'R')
+          AND (tph.insert_timestamp <![CDATA[<]]> #{dateTime} + INTERVAL '1 MONTH' AND tph.insert_timestamp <![CDATA[>=]]> #{dateTime})
+        GROUP BY tc.company_no
+    </select>
+
+    <insert id="upsertPointYearCalc" parameterType="java.util.HashMap">
+
+        INSERT INTO point_year_closing (
+        company_no, yyyy,
+        <trim prefix="" suffix="" suffixOverrides=",">
+            <if test="basic_paid_point_01 != null">basic_paid_point_01,</if>
+            <if test="charge_paid_point_01 != null">charge_paid_point_01,</if>
+            <if test="use_paid_point_01 != null">use_paid_point_01,</if>
+            <if test="end_paid_point_01 != null">end_paid_point_01,</if>
+            <if test="basic_free_point_01 != null">basic_free_point_01,</if>
+            <if test="charge_free_point_01 != null">charge_free_point_01,</if>
+            <if test="use_free_point_01 != null">use_free_point_01,</if>
+            <if test="end_free_point_01 != null">end_free_point_01,</if>
+
+            <if test="basic_paid_point_02 != null">basic_paid_point_02,</if>
+            <if test="charge_paid_point_02 != null">charge_paid_point_02,</if>
+            <if test="use_paid_point_02 != null">use_paid_point_02,</if>
+            <if test="end_paid_point_02 != null">end_paid_point_02,</if>
+            <if test="basic_free_point_02 != null">basic_free_point_02,</if>
+            <if test="charge_free_point_02 != null">charge_free_point_02,</if>
+            <if test="use_free_point_02 != null">use_free_point_02,</if>
+            <if test="end_free_point_02 != null">end_free_point_02,</if>
+
+            <if test="basic_paid_point_03 != null">basic_paid_point_03,</if>
+            <if test="charge_paid_point_03 != null">charge_paid_point_03,</if>
+            <if test="use_paid_point_03 != null">use_paid_point_03,</if>
+            <if test="end_paid_point_03 != null">end_paid_point_03,</if>
+            <if test="basic_free_point_03 != null">basic_free_point_03,</if>
+            <if test="charge_free_point_03 != null">charge_free_point_03,</if>
+            <if test="use_free_point_03 != null">use_free_point_03,</if>
+            <if test="end_free_point_03 != null">end_free_point_03,</if>
+
+            <if test="basic_paid_point_04 != null">basic_paid_point_04,</if>
+            <if test="charge_paid_point_04 != null">charge_paid_point_04,</if>
+            <if test="use_paid_point_04 != null">use_paid_point_04,</if>
+            <if test="end_paid_point_04 != null">end_paid_point_04,</if>
+            <if test="basic_free_point_04 != null">basic_free_point_04,</if>
+            <if test="charge_free_point_04 != null">charge_free_point_04,</if>
+            <if test="use_free_point_04 != null">use_free_point_04,</if>
+            <if test="end_free_point_04 != null">end_free_point_04,</if>
+
+            <if test="basic_paid_point_05 != null">basic_paid_point_05,</if>
+            <if test="charge_paid_point_05 != null">charge_paid_point_05,</if>
+            <if test="use_paid_point_05 != null">use_paid_point_05,</if>
+            <if test="end_paid_point_05 != null">end_paid_point_05,</if>
+            <if test="basic_free_point_05 != null">basic_free_point_05,</if>
+            <if test="charge_free_point_05 != null">charge_free_point_05,</if>
+            <if test="use_free_point_05 != null">use_free_point_05,</if>
+            <if test="end_free_point_05 != null">end_free_point_05,</if>
+
+            <if test="basic_paid_point_06 != null">basic_paid_point_06,</if>
+            <if test="charge_paid_point_06 != null">charge_paid_point_06,</if>
+            <if test="use_paid_point_06 != null">use_paid_point_06,</if>
+            <if test="end_paid_point_06 != null">end_paid_point_06,</if>
+            <if test="basic_free_point_06 != null">basic_free_point_06,</if>
+            <if test="charge_free_point_06 != null">charge_free_point_06,</if>
+            <if test="use_free_point_06 != null">use_free_point_06,</if>
+            <if test="end_free_point_06 != null">end_free_point_06,</if>
+
+            <if test="basic_paid_point_07 != null">basic_paid_point_07,</if>
+            <if test="charge_paid_point_07 != null">charge_paid_point_07,</if>
+            <if test="use_paid_point_07 != null">use_paid_point_07,</if>
+            <if test="end_paid_point_07 != null">end_paid_point_07,</if>
+            <if test="basic_free_point_07 != null">basic_free_point_07,</if>
+            <if test="charge_free_point_07 != null">charge_free_point_07,</if>
+            <if test="use_free_point_07 != null">use_free_point_07,</if>
+            <if test="end_free_point_07 != null">end_free_point_07,</if>
+
+            <if test="basic_paid_point_08 != null">basic_paid_point_08,</if>
+            <if test="charge_paid_point_08 != null">charge_paid_point_08,</if>
+            <if test="use_paid_point_08 != null">use_paid_point_08,</if>
+            <if test="end_paid_point_08 != null">end_paid_point_08,</if>
+            <if test="basic_free_point_08 != null">basic_free_point_08,</if>
+            <if test="charge_free_point_08 != null">charge_free_point_08,</if>
+            <if test="use_free_point_08 != null">use_free_point_08,</if>
+            <if test="end_free_point_08 != null">end_free_point_08,</if>
+
+            <if test="basic_paid_point_09 != null">basic_paid_point_09,</if>
+            <if test="charge_paid_point_09 != null">charge_paid_point_09,</if>
+            <if test="use_paid_point_09 != null">use_paid_point_09,</if>
+            <if test="end_paid_point_09 != null">end_paid_point_09,</if>
+            <if test="basic_free_point_09 != null">basic_free_point_09,</if>
+            <if test="charge_free_point_09 != null">charge_free_point_09,</if>
+            <if test="use_free_point_09 != null">use_free_point_09,</if>
+            <if test="end_free_point_09 != null">end_free_point_09,</if>
+
+            <if test="basic_paid_point_10 != null">basic_paid_point_10,</if>
+            <if test="charge_paid_point_10 != null">charge_paid_point_10,</if>
+            <if test="use_paid_point_10 != null">use_paid_point_10,</if>
+            <if test="end_paid_point_10 != null">end_paid_point_10,</if>
+            <if test="basic_free_point_10 != null">basic_free_point_10,</if>
+            <if test="charge_free_point_10 != null">charge_free_point_10,</if>
+            <if test="use_free_point_10 != null">use_free_point_10,</if>
+            <if test="end_free_point_10 != null">end_free_point_10,</if>
+
+            <if test="basic_paid_point_11 != null">basic_paid_point_11,</if>
+            <if test="charge_paid_point_11 != null">charge_paid_point_11,</if>
+            <if test="use_paid_point_11 != null">use_paid_point_11,</if>
+            <if test="end_paid_point_11 != null">end_paid_point_11,</if>
+            <if test="basic_free_point_11 != null">basic_free_point_11,</if>
+            <if test="charge_free_point_11 != null">charge_free_point_11,</if>
+            <if test="use_free_point_11 != null">use_free_point_11,</if>
+            <if test="end_free_point_11 != null">end_free_point_11,</if>
+
+            <if test="basic_paid_point_12 != null">basic_paid_point_12,</if>
+            <if test="charge_paid_point_12 != null">charge_paid_point_12,</if>
+            <if test="use_paid_point_12 != null">use_paid_point_12,</if>
+            <if test="end_paid_point_12 != null">end_paid_point_12,</if>
+            <if test="basic_free_point_12 != null">basic_free_point_12,</if>
+            <if test="charge_free_point_12 != null">charge_free_point_12,</if>
+            <if test="use_free_point_12 != null">use_free_point_12,</if>
+            <if test="end_free_point_12 != null">end_free_point_12,</if>
+        </trim>
+        )
+        VALUES (
+        #{companyNo}::bigint,
+        #{yyyy}::varchar,
+        <trim prefix="" suffix="" suffixOverrides=",">
+            <if test="basic_paid_point_01 != null">#{basic_paid_point_01},</if>
+            <if test="charge_paid_point_01 != null">#{charge_paid_point_01},</if>
+            <if test="use_paid_point_01 != null">#{use_paid_point_01},</if>
+            <if test="end_paid_point_01 != null">#{end_paid_point_01},</if>
+            <if test="basic_free_point_01 != null">#{basic_free_point_01},</if>
+            <if test="charge_free_point_01 != null">#{charge_free_point_01},</if>
+            <if test="use_free_point_01 != null">#{use_free_point_01},</if>
+            <if test="end_free_point_01 != null">#{end_free_point_01},</if>
+
+            <if test="basic_paid_point_02 != null">#{basic_paid_point_02},</if>
+            <if test="charge_paid_point_02 != null">#{charge_paid_point_02},</if>
+            <if test="use_paid_point_02 != null">#{use_paid_point_02},</if>
+            <if test="end_paid_point_02 != null">#{end_paid_point_02},</if>
+            <if test="basic_free_point_02 != null">#{basic_free_point_02},</if>
+            <if test="charge_free_point_02 != null">#{charge_free_point_02},</if>
+            <if test="use_free_point_02 != null">#{use_free_point_02},</if>
+            <if test="end_free_point_02 != null">#{end_free_point_02},</if>
+
+            <if test="basic_paid_point_03 != null">#{basic_paid_point_03},</if>
+            <if test="charge_paid_point_03 != null">#{charge_paid_point_03},</if>
+            <if test="use_paid_point_03 != null">#{use_paid_point_03},</if>
+            <if test="end_paid_point_03 != null">#{end_paid_point_03},</if>
+            <if test="basic_free_point_03 != null">#{basic_free_point_03},</if>
+            <if test="charge_free_point_03 != null">#{charge_free_point_03},</if>
+            <if test="use_free_point_03 != null">#{use_free_point_03},</if>
+            <if test="end_free_point_03 != null">#{end_free_point_03},</if>
+
+            <if test="basic_paid_point_04 != null">#{basic_paid_point_04},</if>
+            <if test="charge_paid_point_04 != null">#{charge_paid_point_04},</if>
+            <if test="use_paid_point_04 != null">#{use_paid_point_04},</if>
+            <if test="end_paid_point_04 != null">#{end_paid_point_04},</if>
+            <if test="basic_free_point_04 != null">#{basic_free_point_04},</if>
+            <if test="charge_free_point_04 != null">#{charge_free_point_04},</if>
+            <if test="use_free_point_04 != null">#{use_free_point_04},</if>
+            <if test="end_free_point_04 != null">#{end_free_point_04},</if>
+
+            <if test="basic_paid_point_05 != null">#{basic_paid_point_05},</if>
+            <if test="charge_paid_point_05 != null">#{charge_paid_point_05},</if>
+            <if test="use_paid_point_05 != null">#{use_paid_point_05},</if>
+            <if test="end_paid_point_05 != null">#{end_paid_point_05},</if>
+            <if test="basic_free_point_05 != null">#{basic_free_point_05},</if>
+            <if test="charge_free_point_05 != null">#{charge_free_point_05},</if>
+            <if test="use_free_point_05 != null">#{use_free_point_05},</if>
+            <if test="end_free_point_05 != null">#{end_free_point_05},</if>
+
+            <if test="basic_paid_point_06 != null">#{basic_paid_point_06},</if>
+            <if test="charge_paid_point_06 != null">#{charge_paid_point_06},</if>
+            <if test="use_paid_point_06 != null">#{use_paid_point_06},</if>
+            <if test="end_paid_point_06 != null">#{end_paid_point_06},</if>
+            <if test="basic_free_point_06 != null">#{basic_free_point_06},</if>
+            <if test="charge_free_point_06 != null">#{charge_free_point_06},</if>
+            <if test="use_free_point_06 != null">#{use_free_point_06},</if>
+            <if test="end_free_point_06 != null">#{end_free_point_06},</if>
+
+            <if test="basic_paid_point_07 != null">#{basic_paid_point_07},</if>
+            <if test="charge_paid_point_07 != null">#{charge_paid_point_07},</if>
+            <if test="use_paid_point_07 != null">#{use_paid_point_07},</if>
+            <if test="end_paid_point_07 != null">#{end_paid_point_07},</if>
+            <if test="basic_free_point_07 != null">#{basic_free_point_07},</if>
+            <if test="charge_free_point_07 != null">#{charge_free_point_07},</if>
+            <if test="use_free_point_07 != null">#{use_free_point_07},</if>
+            <if test="end_free_point_07 != null">#{end_free_point_07},</if>
+
+            <if test="basic_paid_point_08 != null">#{basic_paid_point_08},</if>
+            <if test="charge_paid_point_08 != null">#{charge_paid_point_08},</if>
+            <if test="use_paid_point_08 != null">#{use_paid_point_08},</if>
+            <if test="end_paid_point_08 != null">#{end_paid_point_08},</if>
+            <if test="basic_free_point_08 != null">#{basic_free_point_08},</if>
+            <if test="charge_free_point_08 != null">#{charge_free_point_08},</if>
+            <if test="use_free_point_08 != null">#{use_free_point_08},</if>
+            <if test="end_free_point_08 != null">#{end_free_point_08},</if>
+
+            <if test="basic_paid_point_09 != null">#{basic_paid_point_09},</if>
+            <if test="charge_paid_point_09 != null">#{charge_paid_point_09},</if>
+            <if test="use_paid_point_09 != null">#{use_paid_point_09},</if>
+            <if test="end_paid_point_09 != null">#{end_paid_point_09},</if>
+            <if test="basic_free_point_09 != null">#{basic_free_point_09},</if>
+            <if test="charge_free_point_09 != null">#{charge_free_point_09},</if>
+            <if test="use_free_point_09 != null">#{use_free_point_09},</if>
+            <if test="end_free_point_09 != null">#{end_free_point_09},</if>
+
+            <if test="basic_paid_point_10 != null">#{basic_paid_point_10},</if>
+            <if test="charge_paid_point_10 != null">#{charge_paid_point_10},</if>
+            <if test="use_paid_point_10 != null">#{use_paid_point_10},</if>
+            <if test="end_paid_point_10 != null">#{end_paid_point_10},</if>
+            <if test="basic_free_point_10 != null">#{basic_free_point_10},</if>
+            <if test="charge_free_point_10 != null">#{charge_free_point_10},</if>
+            <if test="use_free_point_10 != null">#{use_free_point_10},</if>
+            <if test="end_free_point_10 != null">#{end_free_point_10},</if>
+
+            <if test="basic_paid_point_11 != null">#{basic_paid_point_11},</if>
+            <if test="charge_paid_point_11 != null">#{charge_paid_point_11},</if>
+            <if test="use_paid_point_11 != null">#{use_paid_point_11},</if>
+            <if test="end_paid_point_11 != null">#{end_paid_point_11},</if>
+            <if test="basic_free_point_11 != null">#{basic_free_point_11},</if>
+            <if test="charge_free_point_11 != null">#{charge_free_point_11},</if>
+            <if test="use_free_point_11 != null">#{use_free_point_11},</if>
+            <if test="end_free_point_11 != null">#{end_free_point_11},</if>
+
+            <if test="basic_paid_point_12 != null">#{basic_paid_point_12},</if>
+            <if test="charge_paid_point_12 != null">#{charge_paid_point_12},</if>
+            <if test="use_paid_point_12 != null">#{use_paid_point_12},</if>
+            <if test="end_paid_point_12 != null">#{end_paid_point_12},</if>
+            <if test="basic_free_point_12 != null">#{basic_free_point_12},</if>
+            <if test="charge_free_point_12 != null">#{charge_free_point_12},</if>
+            <if test="use_free_point_12 != null">#{use_free_point_12},</if>
+            <if test="end_free_point_12 != null">#{end_free_point_12},</if>
+        </trim>
+        )
+        ON CONFLICT (company_no, yyyy)
+        DO UPDATE SET
+        <trim prefix="" suffix="" suffixOverrides=",">
+            <if test="basic_paid_point_01 != null">basic_paid_point_01 = EXCLUDED.basic_paid_point_01,</if>
+            <if test="charge_paid_point_01 != null">charge_paid_point_01 = EXCLUDED.charge_paid_point_01,</if>
+            <if test="use_paid_point_01 != null">use_paid_point_01 = EXCLUDED.use_paid_point_01,</if>
+            <if test="end_paid_point_01 != null">end_paid_point_01 = EXCLUDED.end_paid_point_01,</if>
+            <if test="basic_free_point_01 != null">basic_free_point_01 = EXCLUDED.basic_free_point_01,</if>
+            <if test="charge_free_point_01 != null">charge_free_point_01 = EXCLUDED.charge_free_point_01,</if>
+            <if test="use_free_point_01 != null">use_free_point_01 = EXCLUDED.use_free_point_01,</if>
+            <if test="end_free_point_01 != null">end_free_point_01 = EXCLUDED.end_free_point_01,</if>
+
+            <if test="basic_paid_point_02 != null">basic_paid_point_02 = EXCLUDED.basic_paid_point_02,</if>
+            <if test="charge_paid_point_02 != null">charge_paid_point_02 = EXCLUDED.charge_paid_point_02,</if>
+            <if test="use_paid_point_02 != null">use_paid_point_02 = EXCLUDED.use_paid_point_02,</if>
+            <if test="end_paid_point_02 != null">end_paid_point_02 = EXCLUDED.end_paid_point_02,</if>
+            <if test="basic_free_point_02 != null">basic_free_point_02 = EXCLUDED.basic_free_point_02,</if>
+            <if test="charge_free_point_02 != null">charge_free_point_02 = EXCLUDED.charge_free_point_02,</if>
+            <if test="use_free_point_02 != null">use_free_point_02 = EXCLUDED.use_free_point_02,</if>
+            <if test="end_free_point_02 != null">end_free_point_02 = EXCLUDED.end_free_point_02,</if>
+
+            <if test="basic_paid_point_03 != null">basic_paid_point_03 = EXCLUDED.basic_paid_point_03,</if>
+            <if test="charge_paid_point_03 != null">charge_paid_point_03 = EXCLUDED.charge_paid_point_03,</if>
+            <if test="use_paid_point_03 != null">use_paid_point_03 = EXCLUDED.use_paid_point_03,</if>
+            <if test="end_paid_point_03 != null">end_paid_point_03 = EXCLUDED.end_paid_point_03,</if>
+            <if test="basic_free_point_03 != null">basic_free_point_03 = EXCLUDED.basic_free_point_03,</if>
+            <if test="charge_free_point_03 != null">charge_free_point_03 = EXCLUDED.charge_free_point_03,</if>
+            <if test="use_free_point_03 != null">use_free_point_03 = EXCLUDED.use_free_point_03,</if>
+            <if test="end_free_point_03 != null">end_free_point_03 = EXCLUDED.end_free_point_03,</if>
+
+            <if test="basic_paid_point_04 != null">basic_paid_point_04 = EXCLUDED.basic_paid_point_04,</if>
+            <if test="charge_paid_point_04 != null">charge_paid_point_04 = EXCLUDED.charge_paid_point_04,</if>
+            <if test="use_paid_point_04 != null">use_paid_point_04 = EXCLUDED.use_paid_point_04,</if>
+            <if test="end_paid_point_04 != null">end_paid_point_04 = EXCLUDED.end_paid_point_04,</if>
+            <if test="basic_free_point_04 != null">basic_free_point_04 = EXCLUDED.basic_free_point_04,</if>
+            <if test="charge_free_point_04 != null">charge_free_point_04 = EXCLUDED.charge_free_point_04,</if>
+            <if test="use_free_point_04 != null">use_free_point_04 = EXCLUDED.use_free_point_04,</if>
+            <if test="end_free_point_04 != null">end_free_point_04 = EXCLUDED.end_free_point_04,</if>
+
+            <if test="basic_paid_point_05 != null">basic_paid_point_05 = EXCLUDED.basic_paid_point_05,</if>
+            <if test="charge_paid_point_05 != null">charge_paid_point_05 = EXCLUDED.charge_paid_point_05,</if>
+            <if test="use_paid_point_05 != null">use_paid_point_05 = EXCLUDED.use_paid_point_05,</if>
+            <if test="end_paid_point_05 != null">end_paid_point_05 = EXCLUDED.end_paid_point_05,</if>
+            <if test="basic_free_point_05 != null">basic_free_point_05 = EXCLUDED.basic_free_point_05,</if>
+            <if test="charge_free_point_05 != null">charge_free_point_05 = EXCLUDED.charge_free_point_05,</if>
+            <if test="use_free_point_05 != null">use_free_point_05 = EXCLUDED.use_free_point_05,</if>
+            <if test="end_free_point_05 != null">end_free_point_05 = EXCLUDED.end_free_point_05,</if>
+
+            <if test="basic_paid_point_06 != null">basic_paid_point_06 = EXCLUDED.basic_paid_point_06,</if>
+            <if test="charge_paid_point_06 != null">charge_paid_point_06 = EXCLUDED.charge_paid_point_06,</if>
+            <if test="use_paid_point_06 != null">use_paid_point_06 = EXCLUDED.use_paid_point_06,</if>
+            <if test="end_paid_point_06 != null">end_paid_point_06 = EXCLUDED.end_paid_point_06,</if>
+            <if test="basic_free_point_06 != null">basic_free_point_06 = EXCLUDED.basic_free_point_06,</if>
+            <if test="charge_free_point_06 != null">charge_free_point_06 = EXCLUDED.charge_free_point_06,</if>
+            <if test="use_free_point_06 != null">use_free_point_06 = EXCLUDED.use_free_point_06,</if>
+            <if test="end_free_point_06 != null">end_free_point_06 = EXCLUDED.end_free_point_06,</if>
+
+            <if test="basic_paid_point_07 != null">basic_paid_point_07 = EXCLUDED.basic_paid_point_07,</if>
+            <if test="charge_paid_point_07 != null">charge_paid_point_07 = EXCLUDED.charge_paid_point_07,</if>
+            <if test="use_paid_point_07 != null">use_paid_point_07 = EXCLUDED.use_paid_point_07,</if>
+            <if test="end_paid_point_07 != null">end_paid_point_07 = EXCLUDED.end_paid_point_07,</if>
+            <if test="basic_free_point_07 != null">basic_free_point_07 = EXCLUDED.basic_free_point_07,</if>
+            <if test="charge_free_point_07 != null">charge_free_point_07 = EXCLUDED.charge_free_point_07,</if>
+            <if test="use_free_point_07 != null">use_free_point_07 = EXCLUDED.use_free_point_07,</if>
+            <if test="end_free_point_07 != null">end_free_point_07 = EXCLUDED.end_free_point_07,</if>
+
+            <if test="basic_paid_point_08 != null">basic_paid_point_08 = EXCLUDED.basic_paid_point_08,</if>
+            <if test="charge_paid_point_08 != null">charge_paid_point_08 = EXCLUDED.charge_paid_point_08,</if>
+            <if test="use_paid_point_08 != null">use_paid_point_08 = EXCLUDED.use_paid_point_08,</if>
+            <if test="end_paid_point_08 != null">end_paid_point_08 = EXCLUDED.end_paid_point_08,</if>
+            <if test="basic_free_point_08 != null">basic_free_point_08 = EXCLUDED.basic_free_point_08,</if>
+            <if test="charge_free_point_08 != null">charge_free_point_08 = EXCLUDED.charge_free_point_08,</if>
+            <if test="use_free_point_08 != null">use_free_point_08 = EXCLUDED.use_free_point_08,</if>
+            <if test="end_free_point_08 != null">end_free_point_08 = EXCLUDED.end_free_point_08,</if>
+
+            <if test="basic_paid_point_09 != null">basic_paid_point_09 = EXCLUDED.basic_paid_point_09,</if>
+            <if test="charge_paid_point_09 != null">charge_paid_point_09 = EXCLUDED.charge_paid_point_09,</if>
+            <if test="use_paid_point_09 != null">use_paid_point_09 = EXCLUDED.use_paid_point_09,</if>
+            <if test="end_paid_point_09 != null">end_paid_point_09 = EXCLUDED.end_paid_point_09,</if>
+            <if test="basic_free_point_09 != null">basic_free_point_09 = EXCLUDED.basic_free_point_09,</if>
+            <if test="charge_free_point_09 != null">charge_free_point_09 = EXCLUDED.charge_free_point_09,</if>
+            <if test="use_free_point_09 != null">use_free_point_09 = EXCLUDED.use_free_point_09,</if>
+            <if test="end_free_point_09 != null">end_free_point_09 = EXCLUDED.end_free_point_09,</if>
+
+            <if test="basic_paid_point_10 != null">basic_paid_point_10 = EXCLUDED.basic_paid_point_10,</if>
+            <if test="charge_paid_point_10 != null">charge_paid_point_10 = EXCLUDED.charge_paid_point_10,</if>
+            <if test="use_paid_point_10 != null">use_paid_point_10 = EXCLUDED.use_paid_point_10,</if>
+            <if test="end_paid_point_10 != null">end_paid_point_10 = EXCLUDED.end_paid_point_10,</if>
+            <if test="basic_free_point_10 != null">basic_free_point_10 = EXCLUDED.basic_free_point_10,</if>
+            <if test="charge_free_point_10 != null">charge_free_point_10 = EXCLUDED.charge_free_point_10,</if>
+            <if test="use_free_point_10 != null">use_free_point_10 = EXCLUDED.use_free_point_10,</if>
+            <if test="end_free_point_10 != null">end_free_point_10 = EXCLUDED.end_free_point_10,</if>
+
+            <if test="basic_paid_point_11 != null">basic_paid_point_11 = EXCLUDED.basic_paid_point_11,</if>
+            <if test="charge_paid_point_11 != null">charge_paid_point_11 = EXCLUDED.charge_paid_point_11,</if>
+            <if test="use_paid_point_11 != null">use_paid_point_11 = EXCLUDED.use_paid_point_11,</if>
+            <if test="end_paid_point_11 != null">end_paid_point_11 = EXCLUDED.end_paid_point_11,</if>
+            <if test="basic_free_point_11 != null">basic_free_point_11 = EXCLUDED.basic_free_point_11,</if>
+            <if test="charge_free_point_11 != null">charge_free_point_11 = EXCLUDED.charge_free_point_11,</if>
+            <if test="use_free_point_11 != null">use_free_point_11 = EXCLUDED.use_free_point_11,</if>
+            <if test="end_free_point_11 != null">end_free_point_11 = EXCLUDED.end_free_point_11,</if>
+
+            <if test="basic_paid_point_12 != null">basic_paid_point_12 = EXCLUDED.basic_paid_point_12,</if>
+            <if test="charge_paid_point_12 != null">charge_paid_point_12 = EXCLUDED.charge_paid_point_12,</if>
+            <if test="use_paid_point_12 != null">use_paid_point_12 = EXCLUDED.use_paid_point_12,</if>
+            <if test="end_paid_point_12 != null">end_paid_point_12 = EXCLUDED.end_paid_point_12,</if>
+            <if test="basic_free_point_12 != null">basic_free_point_12 = EXCLUDED.basic_free_point_12,</if>
+            <if test="charge_free_point_12 != null">charge_free_point_12 = EXCLUDED.charge_free_point_12,</if>
+            <if test="use_free_point_12 != null">use_free_point_12 = EXCLUDED.use_free_point_12,</if>
+            <if test="end_free_point_12 != null">end_free_point_12 = EXCLUDED.end_free_point_12,</if>
+        </trim>
+    </insert>
+
+</mapper>

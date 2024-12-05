@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Disabled
-public class TestPointChargeController {
+public class PointChargeControllerTest {
 
 	@Autowired
 	private MockMvc mockMvc;
