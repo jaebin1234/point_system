@@ -1,9 +1,7 @@
 package com.common.point.controller;
 
 import com.common.point.model.dto.Company;
-import com.common.point.model.vo.CompanyVo;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Disabled
-public class TestCompanyController {
+public class CompanyControllerTest {
 
 	@Autowired
 	private MockMvc mockMvc;
