@@ -3,7 +3,6 @@ package com.common.point.controller;
 import com.common.point.model.dto.PointChargeAndUseRequest;
 import com.common.point.model.dto.PointChargeAndUseResponse;
 import com.common.point.model.dto.Response;
-import com.common.point.service.PointChargeService;
 import com.common.point.service.PointUseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

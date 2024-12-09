@@ -2,7 +2,6 @@ package com.common.point.service;
 
 import com.common.point.dao.mapper.CompanyMapper;
 import com.common.point.model.dto.Company;
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

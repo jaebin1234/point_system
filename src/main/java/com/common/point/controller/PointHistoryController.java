@@ -1,6 +1,5 @@
 package com.common.point.controller;
 
-import com.common.point.model.dto.PointChargeAndUseResponse;
 import com.common.point.model.dto.PointHistory;
 import com.common.point.model.dto.PointHistoryRequest;
 import com.common.point.model.dto.Response;

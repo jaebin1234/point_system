@@ -15,14 +15,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.common.point.model.dto.PointKeys.*;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PointCalcService {
+public class PointCalculateService {
 
 	private final PointCalculateMapper pointCalculateMapper;
 
