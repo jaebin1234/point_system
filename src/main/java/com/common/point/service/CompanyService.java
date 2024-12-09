@@ -1,10 +1,8 @@
 package com.common.point.service;
 
 import com.common.point.dao.mapper.CompanyMapper;
-import com.common.point.dao.mapper.PointMapper;
 import com.common.point.model.dto.Company;
 import com.common.point.model.vo.CompanyVo;
-import com.common.point.model.vo.PointVo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
