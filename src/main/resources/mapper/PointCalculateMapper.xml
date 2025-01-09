@@ -20,8 +20,8 @@
         INNER JOIN company tc ON tp.company_no = tc.company_no
         WHERE 1=1
         <if test="yyyymm != null">
-            AND tp.update_timestamp <![CDATA[<]]> #{dateTime} + INTERVAL '1 MONTH'
-            AND tp.update_timestamp <![CDATA[>=]]> #{dateTime}
+            AND tp.update_timestamp <![CDATA[<]]> (#{dateTime}::timestamp + INTERVAL '1 MONTH')
+            AND tp.update_timestamp <![CDATA[>=]]> #{dateTime}::timestamp
         </if>
         <if test='lastSyncYmdhms != null and !"".equals(lastSyncYmdhms)'>
             AND tp.update_timestamp <![CDATA[>=]]> #{lastSyncYmdhms}::timestamp(6)
@@ -36,6 +36,12 @@
             and tc.company_reg_no = #{companyRegNo}
         </if>
         group by tc.company_no
+        <if test="limit != null">
+            limit #{limit}
+        </if>
+        <if test="offset != null">
+            offset #{offset}
+        </if>
     </select>
 
     <select id="selectRemainingPoint" parameterType="java.util.HashMap"
@@ -122,7 +128,7 @@
         WHERE tc.company_no = #{companyNo}
           AND tph.point_type IN ('C', 'E')
           AND tph.point_action_type IN ('C', 'A', 'B', 'U', 'T', 'X', 'R')
-          AND (tph.insert_timestamp <![CDATA[<]]> #{dateTime} + INTERVAL '1 MONTH' AND tph.insert_timestamp <![CDATA[>=]]> #{dateTime})
+          AND (tph.insert_timestamp <![CDATA[<]]> #{dateTime}::timestamp + INTERVAL '1 MONTH' AND tph.insert_timestamp <![CDATA[>=]]> #{dateTime}::timestamp)
         GROUP BY tc.company_no
     </select>
 
