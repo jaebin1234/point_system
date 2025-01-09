@@ -30,6 +30,8 @@ public class PointCalculateTest {
 
     @Test
     public void testPointCalculation() throws Exception {
+		long startTime = System.nanoTime();
+
         PointCalculateRequest request = PointCalculateRequest.builder()
 //                .companyNo(35) // 정산 대상 회사 (예: 35번)
                 .yyyymm("202412") // 정산 연도
@@ -44,5 +46,9 @@ public class PointCalculateTest {
 
 		perform.andExpect(status().isOk())
 				.andDo(print());
+
+		long endTime = System.nanoTime();
+        long duration = (endTime - startTime) / 1_000_000; // Convert to milliseconds
+        System.out.println("Execution time: " + duration + " ms");
     }
 }
